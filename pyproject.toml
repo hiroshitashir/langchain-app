@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "langchain-app"
+version = "0.1.0"
+description = ""
+authors = ["Hiroshi Tashiro <hiroshitash@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain = "^0.0.312"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
