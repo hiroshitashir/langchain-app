@@ -1,7 +1,10 @@
+from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain.memory import ConversationBufferMemory
+from langchain.prompts import (ChatPromptTemplate, MessagesPlaceholder)
 
-model = ChatOpenAI()
+llm = ChatOpenAI()
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 #
 # First Question: Create star schema
@@ -45,109 +48,74 @@ CREATE TABLE Customers (
 
 prompt = ChatPromptTemplate.from_messages(
     [("system", template), 
+      MessagesPlaceholder(
+          variable_name="chat_history"
+      ),  # Where the memory will be stored.
      ("human", "{input}")]
 )
 
-chain = prompt | model
+chain = LLMChain(
+    llm=llm,
+    prompt=prompt,
+    verbose=True,
+    memory=memory,
+)
 input = "Write SQL queries which create new tables with star schema."
-response = chain.invoke({"input": input})
+
+response = chain.run({"input": input})
 #import pdb; pdb.set_trace()
 
-print("step1:")
-print(response.content)
+print("\n\nstep1:")
+print(response)
 
 
 #
 # Second Question: Add a column in schema.
 #
-prompt1 = ChatPromptTemplate.from_messages(
-    [("system", template), 
-     ("human", input),
-     ("ai", response.content),
-     ("human", "{input}"),
-     ]
-)
-chain1 = prompt1 | model
 input1 = """The original Customers table now has an additional column dob. \
   Can you add the column in the new tables with star schema? Show me the schema of the star schema tables.
 """
-response1 = chain.invoke({"input": input1})
+response1 = chain.run({"input": input1})
 #import pdb; pdb.set_trace()
 
-print("step2:")
-print(response1.content)
+print("\n\nstep2:")
+print(response1)
 
 
 #
 # Third Question: Write SQLs for transforming data from the original tables to new star schema tables.
 #
-prompt2 = ChatPromptTemplate.from_messages(
-    [("system", template), 
-     ("human", input),
-     ("ai", response.content),
-     ("human", input1),
-     ("ai", response1.content),
-     ("human", "{input}"),
-     ]
-)
-chain2 = prompt2 | model
 input2 = """Now, write SQLs that extract and transform records in original tables to tables in star schema.
 """
-response2 = chain.invoke({"input": input2})
+response2 = chain.run({"input": input2})
 #import pdb; pdb.set_trace()
 
-print("step3:")
-print(response2.content)
+print("\n\nstep3:")
+print(response2)
 
 
 #
 # Fourth Question: Change SQLs to extract data from the previous hour.
 #
-prompt3 = ChatPromptTemplate.from_messages(
-    [("system", template), 
-     ("human", input),
-     ("ai", response.content),
-     ("human", input1),
-     ("ai", response1.content),
-     ("human", input2),
-     ("ai", response2.content),
-     ("human", "{input}"),
-     ]
-)
-chain3 = prompt3 | model
 input3 = """Now, change the previously created SQLs that extract and transform records in \
   original tables to tables in star schema. They should extract and  transform data in the previous hour.
 """
-response3 = chain.invoke({"input": input3})
+response3 = chain.run({"input": input3})
 #import pdb; pdb.set_trace()
 
-print("step4:")
-print(response3.content)
+print("\n\nstep4:")
+print(response3)
 
 
 #
 # Fifth Question: Write Python code for Airflow to run the previous query.
 #
-prompt4 = ChatPromptTemplate.from_messages(
-    [("system", template), 
-     ("human", input),
-     ("ai", response.content),
-     ("human", input1),
-     ("ai", response1.content),
-     ("human", input2),
-     ("ai", response2.content),
-     ("human", input3),
-     ("ai", response3.content),
-     ("human", "{input}"),
-     ]
-)
-chain4 = prompt4 | model
 input4 = """Now, write Python code for Airflow that runs the previous SQLs. The previous SQLs should \
   transfer data in the previous hour from the original tables to star schema tables.
 """
-response4 = chain.invoke({"input": input4})
+response4 = chain.run({"input": input4})
 #import pdb; pdb.set_trace()
 
-print("step5:")
-print(response4.content)
+print("\n\nstep5:")
+print(response4)
 
