@@ -20,5 +20,5 @@ For Google (Gmail, Calendar and Youtube) integration, you need `credential.json`
 ## To run
 1. Run `poetry shell`
 2. Run `poetry install`
-3. Run `python <script name>.py`
+3. Run `python run python <script name>.py`
 
